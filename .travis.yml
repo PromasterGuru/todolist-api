@@ -1,0 +1,24 @@
+language: python
+python:
+  - "3.9"
+  - services:
+      - postgresql
+
+  - before_install:
+      - python -m pip install --user --upgrade pip
+
+  - install:
+      - pip install -r requirements.txt
+      - pip install codeclimate-test-reporter
+
+  - before_script:
+      - psql -c 'create database todolist_db_test;' -U postgres
+      - python manage.py makemigrations
+      - python manage.py migrate
+
+  - script:
+    - coverage run --source='.' ./manage.py test # create test coverage report
+    - coverage report
+
+  - after_script:
+    - codeclimate-test-reporter --file .coverage # send test coverage report to code climate
