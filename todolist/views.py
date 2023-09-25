@@ -1,4 +1,4 @@
-# todolist/views.py
+# todolist/test_views.py
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from rest_framework.response import Response
