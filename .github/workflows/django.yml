@@ -23,6 +23,7 @@ jobs:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
+      HOST: ${{ secrets.HOST }}
     # If you want to test multiple python version(s)
     strategy:
       matrix:
