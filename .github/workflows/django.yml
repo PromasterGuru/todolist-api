@@ -27,8 +27,8 @@ jobs:
       - name: "Retrieve secret keys"
         run: |
         env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DB_NAME: ${{ secrets.DB_NAME }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
           HOST: ${{ secrets.HOST }}
