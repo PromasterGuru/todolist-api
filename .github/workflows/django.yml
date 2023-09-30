@@ -24,6 +24,9 @@ jobs:
         python-version: [ "3.9" ] # ["3.8", "3.9", "3.10"]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Set PostgreSQL Environment Variables
+        run: |
+            echo "export PGHOST=/opt/homebrew/var/postgresql@14" >> $GITHUB_ENV
       - name: "Retrieve secret keys"
         run: |
         env:
