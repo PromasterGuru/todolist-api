@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Set PostgreSQL Environment Variables
         run: |
-            echo "export PGHOST=/opt/homebrew/var/postgresql@14" >> $GITHUB_ENV
+            echo "export HOST=/opt/homebrew/var/postgresql@14" >> $GITHUB_ENV
       - name: "Retrieve secret keys"
         run: |
         env:
