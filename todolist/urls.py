@@ -1,9 +1,9 @@
 # todolist/urls.py
 from django.urls import include, path
 
-from .views import HomeView, AboutView
+from .views import ProjectViewSet, TaskViewSet
 
 urlpatterns = [
-    path('', HomeView.as_view(), name='home'),
-    path('about/', AboutView.as_view(), name='About')
+    path('', ProjectViewSet.as_view, name='project'),
+    path('task/<task>', TaskViewSet.as_view, name='task')
 ]

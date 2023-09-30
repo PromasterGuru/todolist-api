@@ -1,19 +1,18 @@
 # todolist/test_views.py
-from django.shortcuts import render
-from django.views.generic import TemplateView
-from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import viewsets
+from todolist.serializers import ProjectSerializer, TaskSerializer
+from todolist.models import Project, Task
 
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
 
-# Create your views here.
-class HomeView(generics.ListAPIView):
-    def get(self, request, **kwargs):
-        # return render(request, 'index.html', context=None)
-        #Query to fetch all counties from the DB
+    def get(self, request):
+        return ""
 
-        return Response({"profile": {"username": "Paul", "age": 46, "gender": "Male"}})
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
 
-
-class AboutView(TemplateView):
-    def get(self, request, **kwargs):
-        return render(request, 'about.html', context=None)
+    def get(self, request):
+        return ""
