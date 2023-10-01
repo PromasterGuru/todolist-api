@@ -1,12 +1,13 @@
 from django.db import models
 import uuid
+from django.utils import timezone
 
 class Project(models.Model):
     name = models.CharField(max_length=20)
     description = models.CharField(max_length=200)
-    created_at = models.DateTimeField(auto_now=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True)
-    deleted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now, null=True)
+    updated_at = models.DateTimeField(default=timezone.now, null=True)
+    deleted_at = models.DateTimeField(default=None, null=True)
 
     def __str__(self) -> str:
         return self.name
@@ -15,7 +16,7 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
     
     class Meta:
-        ordering = ["-created_at"],
+        ordering = ["-created_at"]
         db_table_comment = "Available Projects"
 
 
@@ -29,7 +30,7 @@ class Task(models.Model):
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self) -> str:
-        return "{} - {}".format(self.name, self.task_id)
+        return self.name
     
     def get_task_id(self):
         return str(uuid.uuid4()).split("-")[-1]
@@ -41,5 +42,5 @@ class Task(models.Model):
         super(Task, self).save(*args, **kwargs)
     
     class Meta:
-        ordering = ["-created_at"],
+        ordering = ["-created_at"]
         db_table_comment = "Available Tasks"
