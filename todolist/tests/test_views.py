@@ -6,7 +6,9 @@ from rest_framework.views import status
 from todolist.models import Project, Task
 
 """
-Projects tests: CRUD
+---------------------------------------------------------------------
+                        PROJECT UNIT TESTS
+--------------------------------------------------------------------
 """
 class ProjectListCreateApiViewTest(APITestCase):
 
@@ -86,8 +88,11 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         response = self.client.delete(path=self.invalid_url)
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
 """
-Tasks tests: CRUD
+---------------------------------------------------------------------
+                        TASKS UNIT TESTS
+--------------------------------------------------------------------
 """
 class ProjectTaskListCreateApiViewTest(APITestCase):
 
