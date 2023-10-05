@@ -22,7 +22,7 @@ class ProjectListCreateApiViewTest(APITestCase):
         self.assertEquals(project.name, self.data['name'])
         self.assertEquals(project.description, self.data['description'])
 
-    def test_get_projects_on_empty_record(self):
+    def test_get_projects_when_there_are_no_projects_on_db(self):
         response = self.client.get(path=self.url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.json()), 0)
@@ -109,22 +109,20 @@ class ProjectTaskListCreateApiViewTest(APITestCase):
         self.assertEquals(tasks[0].name, data['name'])
         self.assertEquals(tasks[0].description, data['description'])
 
-# class TaskListCreateApiViewTest(APITestCase):
+class TaskListCreateApiViewTest(APITestCase):
 
-#     def setUp(self) -> None:
-#         self.project = Project.objects.create(name='Creative Todo', description='Task management project')
-#         self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
+    def setUp(self) -> None:
+        self.data = {'name': 'UI/UX Design', 'description': 'Design figma designs'}
+        self.project = Project.objects.create(name='Creative Todo', description='Task management project')
+        self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
 
-#     def test_create_task(self):
-#         self.assertEquals(Project.objects.count(), 1)
-#         self.assertEquals(Task.objects.count(), 0)
-#         data = {
-#             'name': 'UI/UX Design',
-#             'description': 'Design figma designs',
-#         }
-#         response = self.client.post(path=self.url, data=data, format='json')
-#         self.assertEquals(response.json(), data)
-#         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+    def test_create_task(self):
+        self.assertEquals(Project.objects.count(), 1)
+        self.assertEquals(Task.objects.count(), 0)
+        response = self.client.post(path=self.url, data=self.data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        task = Task.objects.first()
+        self.assertEquals(task.name, self.data['name'])
 
     # def test_get_tasks(self):
     #     response = self.client.get(path=self.url)
