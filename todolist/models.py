@@ -1,10 +1,10 @@
+from collections.abc import Iterable
 from django.db import models
-import uuid
 from django.utils import timezone
 
 class Project(models.Model):
-    name = models.CharField(max_length=20)
-    description = models.CharField(max_length=200)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=250)
     created_at = models.DateTimeField(default=timezone.now, null=True)
     updated_at = models.DateTimeField(default=timezone.now, null=True)
     deleted_at = models.DateTimeField(default=None, null=True)
@@ -21,26 +21,18 @@ class Project(models.Model):
 
 
 class Task(models.Model):
-    name = models.CharField(max_length=20)
-    description = models.CharField(max_length=50)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    due_date_at = models.DateTimeField(auto_now=True, blank=True)
-    created_at = models.DateTimeField(auto_now=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True)
-    deleted_at = models.DateTimeField(default=None, null=True, blank=True)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=250)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
+    due_date_at = models.DateTimeField(default=timezone.now, null=True)
+    created_at = models.DateTimeField(default=timezone.now, null=True)
+    updated_at = models.DateTimeField(default=timezone.now, null=True)
+    deleted_at = models.DateTimeField(null=True)
+  
+    class Meta:
+        ordering = ["-created_at"]
+        db_table_comment = "Available Tasks"
 
     def __str__(self) -> str:
         return self.name
     
-    def get_task_id(self):
-        return str(uuid.uuid4()).split("-")[-1]
-    
-    def save(self, *args, **kwargs):
-        project = Project.objects.get(name=self.project.name)
-        if(project is None):
-            return f"Project for this task {self.name} not found"
-        super(Task, self).save(*args, **kwargs)
-    
-    class Meta:
-        ordering = ["-created_at"]
-        db_table_comment = "Available Tasks"

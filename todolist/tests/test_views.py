@@ -1,3 +1,4 @@
+import json
 from django.urls import reverse
 
 from rest_framework.test import APITestCase
@@ -39,7 +40,7 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         response = self.client.get(path=self.url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEquals(data['pk'], self.project.pk)
+        self.assertEquals(data['id'], self.project.pk)
         self.assertEquals(data['name'], self.project.name)
         self.assertEquals(data['description'], self.project.description)
         
@@ -66,11 +67,11 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
 """
 Tasks tests: CRUD
 """
-class TaskListCreateApiViewTest(APITestCase):
+class ProjectTaskListCreateApiViewTest(APITestCase):
 
     def setUp(self) -> None:
         self.project = Project.objects.create(name='Creative Todo', description='Task management project')
-        self.url = reverse('api-task-list', kwargs= {'version': 'v1'})
+        self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
 
     def test_create_task(self):
         self.assertEquals(Project.objects.count(), 1)
@@ -78,14 +79,30 @@ class TaskListCreateApiViewTest(APITestCase):
         data = {
             'name': 'UI/UX Design',
             'description': 'Design figma designs',
-            'project': self.project.pk
         }
         response = self.client.post(path=self.url, data=data, format='json')
+        tasks = Task.objects.all()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        
-        # task = Task.objects.first()
-        # self.assertEquals(task.name, data['name'])
-        # self.assertEquals(task.description, data['description'])
+        self.assertEquals(tasks.count(), 1)
+        self.assertEquals(tasks[0].name, data['name'])
+        self.assertEquals(tasks[0].description, data['description'])
+
+# class TaskListCreateApiViewTest(APITestCase):
+
+#     def setUp(self) -> None:
+#         self.project = Project.objects.create(name='Creative Todo', description='Task management project')
+#         self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
+
+#     def test_create_task(self):
+#         self.assertEquals(Project.objects.count(), 1)
+#         self.assertEquals(Task.objects.count(), 0)
+#         data = {
+#             'name': 'UI/UX Design',
+#             'description': 'Design figma designs',
+#         }
+#         response = self.client.post(path=self.url, data=data, format='json')
+#         self.assertEquals(response.json(), data)
+#         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
     # def test_get_tasks(self):
     #     response = self.client.get(path=self.url)

@@ -21,6 +21,14 @@ class ProjectDetailCreateApiView(RetrieveUpdateDestroyAPIView):
     serializer_class = ProjectSerializer
     queryset = Project.objects.all()
 
+class ProjectTaskListCreateApiView(ListCreateAPIView):
+    """
+    API view to retrieve list of project tasks or create new
+    """
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = TaskSerializer
+
 class TaskListCreateApiView(ListCreateAPIView):
     """
     API view to retrieve list of tasks or create new
