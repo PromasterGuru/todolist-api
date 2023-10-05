@@ -22,6 +22,11 @@ class ProjectListCreateApiViewTest(APITestCase):
         self.assertEquals(project.name, self.data['name'])
         self.assertEquals(project.description, self.data['description'])
 
+    def test_get_projects_on_empty_record(self):
+        response = self.client.get(path=self.url)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()), 0)
+
     def test_get_projects(self):
         Project.objects.create(name=self.data['name'], description=self.data['description'])
         response = self.client.get(path=self.url)
@@ -35,6 +40,7 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
     def setUp(self) -> None:
         self.project = Project.objects.create(name="Leisure", description="Listen to music")
         self.url = reverse('api-project-detail', kwargs={'version': 'v1', 'pk': self.project.pk})
+        self.invalid_url = reverse('api-project-detail', kwargs={'version': 'v1', 'pk': -999})
     
     def test_get_project(self):
         response = self.client.get(path=self.url)
@@ -44,11 +50,14 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         self.assertEquals(data['name'], self.project.name)
         self.assertEquals(data['description'], self.project.description)
         
+    def test_get_unexisting_project(self):
+        response = self.client.get(path=self.invalid_url)
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_update_project(self):
         response = self.client.get(path=self.url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         data = {
-            'pk': self.project.pk,
             'name': "Hobby",
             'description': "Playing Guitar"
         }
@@ -57,12 +66,25 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         self.project.refresh_from_db()
         self.assertEquals(self.project.name, data['name'])
         self.assertEquals(self.project.description, data['description'])
+    
+    def test_update_unexisting_project(self):
+        data = {
+            'name': "Hobby",
+            'description': "Playing Guitar"
+        }
+        response = self.client.put(path=self.invalid_url, data=data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_project(self):
         self.assertEquals(Project.objects.count(), 1)
         response = self.client.delete(path=self.url)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEquals(Project.objects.count(), 0)
+    
+    def test_delete_unexisting_project(self):
+        self.assertEquals(Project.objects.count(), 1)
+        response = self.client.delete(path=self.invalid_url)
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
 """
 Tasks tests: CRUD
