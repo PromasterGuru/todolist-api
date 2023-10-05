@@ -28,6 +28,7 @@ class ProjectTaskListCreateApiView(ListCreateAPIView):
     authentication_classes = []
     permission_classes = []
     serializer_class = TaskSerializer
+    queryset = Task.objects.all()
 
 class TaskListCreateApiView(ListCreateAPIView):
     """

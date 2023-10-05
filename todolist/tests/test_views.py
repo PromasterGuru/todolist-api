@@ -124,12 +124,13 @@ class TaskListCreateApiViewTest(APITestCase):
         task = Task.objects.first()
         self.assertEquals(task.name, self.data['name'])
 
-    # def test_get_tasks(self):
-    #     response = self.client.get(path=self.url)
-    #     self.assertEquals(response.status_code, status.HTTP_200_OK)
-    #     data = response.json()
-    #     self.assertEquals(data[0]['name'], self.task.name)
-    #     self.assertEquals(data[0]['description'], self.task.description)
+    def test_get_tasks(self):
+        Task.objects.create(name=self.data['name'], description=self.data['description'])
+        response = self.client.get(path=self.url)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEquals(data[0]['name'], self.data['name'])
+        self.assertEquals(data[0]['description'], self.data['description'])
 
 # class TaskDetailsCreateApiViewTest(APITestCase):
 
