@@ -54,13 +54,13 @@ class ProjectListCreateApiViewTest(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEquals(data['data']['details']['error_code'], 'PROJECT_RECORD_NOT_FOUND')
 
-    # def test_get_projects(self):
-    #     Project.objects.create(name=self.data['name'], description=self.data['description'])
-    #     response = self.client.get(path=self.url)
-    #     self.assertEquals(response.status_code, status.HTTP_200_OK)
-    #     data = response.json()
-    #     self.assertEquals(data['data']['message'], 'Projects record retrieved successfully')
-    #     self.assertGreater(len(data['data']['details']), 0)
+    def test_get_projects(self):
+        Project.objects.create(name=self.data['name'], description=self.data['description'])
+        response = self.client.get(path=self.url)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEquals(data['data']['message'], 'Projects record retrieved successfully')
+        self.assertGreater(len(data['data']['details']), 0)
  
 # class ProjectDetailsCreateApiViewTest(APITestCase):
 
@@ -117,7 +117,7 @@ class ProjectListCreateApiViewTest(APITestCase):
 # """
 # ---------------------------------------------------------------------
 #                         TASKS UNIT TESTS
-# --------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # """
 # class ProjectTaskListCreateApiViewTest(APITestCase):
 

@@ -26,16 +26,15 @@ class ProjectListCreateApiView(ListCreateAPIView):
                 }} 
             }, status=HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response(data={"data": {"message": "Project created successfully", "details": serializer.data}},status=HTTP_201_CREATED)
+        return Response(data={'data': {'message': 'Project created successfully', 'details': serializer.data}},status=HTTP_201_CREATED)
     
     def get(self, request, *args, **kwargs):
         try:
             projects = Project.objects.all()
-            breakpoint()
             if(len(projects) > 0):
-                serializer = ProjectListSerializer(projects)
-                serializer.is_valid(raise_exception=True)
-                return Response(data={"data": {"message": "Projects record retrieved successfully", "details": serializer.data}},status=HTTP_200_OK)
+                serializer = ProjectListSerializer(data=projects, many=True)
+                serializer.is_valid(raise_exception=False)
+                return Response(data={'data': {'message': 'Projects record retrieved successfully', 'details': serializer.data}},status=HTTP_200_OK)
             raise Project.DoesNotExist('No project records found') 
         except Project.DoesNotExist as e:
             return Response(data={'data': {
