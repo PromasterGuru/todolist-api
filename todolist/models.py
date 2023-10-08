@@ -19,7 +19,7 @@ class Project(models.Model):
 class Task(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=False)
     due_date_at = models.DateTimeField(default=timezone.now, null=True)
     created_at = models.DateTimeField(default=timezone.now, null=True)
     updated_at = models.DateTimeField(default=timezone.now, null=True)
@@ -31,4 +31,6 @@ class Task(models.Model):
 
     def __str__(self) -> str:
         return self.name
+    
+
     
