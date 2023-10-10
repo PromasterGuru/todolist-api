@@ -1,12 +1,10 @@
 from rest_framework import serializers
 from todolist.models import Project, Task
 from rest_framework.validators import UniqueTogetherValidator
+from todolist.base.serializers import ProjectSerializer
 
-class ProjectListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project
-        fields = "__all__"
-    
+class ProjectListSerializer(ProjectSerializer):
+
     def __init__(self, instance=None, data=..., **kwargs):
         super().__init__(instance, data, **kwargs)
         #Override valdiation messages
@@ -22,25 +20,18 @@ class ProjectListSerializer(serializers.ModelSerializer):
         return project
     
     def update(self, instance, validated_data):
-        instance.name = validated_data['name']
-        instance.description = validated_data['description']
-        instance.save()
-        return instance
+        return super().update(instance, validated_data)
     
     def validate(self, attrs):
-        errors = {}
-        if((len(attrs['name']) < 5) | (len(attrs['name']) > 50)): 
-            errors['name'] = "Project name must be between 4 and 50 characters"
-        if((len(attrs['description']) < 50) | (len(attrs['description']) > 250)): 
-            errors['description'] = "Project description must be between 50 and 250 characters"
-        if len(errors) > 0:
-            raise serializers.ValidationError(errors)
-        return attrs
+        return super().validate(attrs)
     
-class ProjectDetailsSerializer(serializers.ModelSerializer):
+class ProjectDetailsSerializer(ProjectSerializer):
     class Meta:
         model = Project
         fields = "__all__"
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
