@@ -111,25 +111,27 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-# """
-# ---------------------------------------------------------------------
-#                         TASKS UNIT TESTS
-# ---------------------------------------------------------------------
-# """
-# class ProjectTaskListCreateApiViewTest(APITestCase):
+"""
+---------------------------------------------------------------------
+                        TASKS UNIT TESTS
+---------------------------------------------------------------------
+"""
+class ProjectTaskListCreateApiViewTest(APITestCase):
 
-#     def setUp(self) -> None:
-#         self.project = Project.objects.create(name='Creative Todo', description='Task management project')
-#         self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
-#         self.data = {'name': 'UI/UX Design', 'description': 'Design figma designs'}
+    def setUp(self) -> None:
+        self.project = Project.objects.create(name='Creative Todo', description='Task management project')
+        self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
+        self.data = {'name': 'UI/UX Design', 'description': 'Design figma designs'}
+    
+    def test_there_should_have_at_leaset_one_project(self):
+        self.assertEquals(Project.objects.count(), 1)
 
-#     def test_create_task(self):
-#             self.assertEquals(Project.objects.count(), 1)
-#             self.assertEquals(Task.objects.count(), 0)
-#             response = self.client.post(path=self.url, data=self.data, format='json')
-#             self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-#             task = Task.objects.first()
-#             self.assertEquals(task.name, self.data['name'])
+    def test_create_task(self):
+            self.assertEquals(Task.objects.count(), 0)
+            response = self.client.post(path=self.url, data=self.data, format='json')
+            self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+            task = Task.objects.first()
+            self.assertEquals(task.name, self.data['name'])
 
 #     def test_get_tasks_when_there_are_no_tasks_on_db(self):
 #         response = self.client.get(path=self.url)

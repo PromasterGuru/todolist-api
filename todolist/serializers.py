@@ -49,3 +49,5 @@ class TaskSerializer(serializers.ModelSerializer):
             field_error_messages['required'] = field_error_messages['null'] \
                 = field_error_messages['blank'] = f'Please fill in the task {field}'
 
+    def validate(self, attrs):
+        return super().validate(attrs)

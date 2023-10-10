@@ -86,9 +86,13 @@ class ProjectTaskListCreateApiView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         """Override post method to validate project before creating task"""
         try:
-            project = Project.objects.get(id=kwargs['pk'])
-            request.data['project'] = project
-            return super().create(request, *args, **kwargs)
+            request.data['project'] = kwargs['pk']
+            serializer = TaskSerializer(data=request.data)
+            serializer.is_valid(raise_exception=False)
+            if len(serializer.errors) > 0:
+                return self.validator.server_validation_exception(errors=serializer.errors)
+            serializer.save()
+            return Response(data={'data': {'message': 'Task created successfully', 'details': serializer.data}},status=HTTP_201_CREATED)
         except Project.DoesNotExist as e:
             return self.server_exception(title='Project does not exist', errors=e.args[0], code='PROJECT_DOES_NOT_EXIST')
 
