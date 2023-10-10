@@ -102,7 +102,7 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
     def test_should_delete_existing_project(self):
         self.assertEquals(Project.objects.count(), 1)
         response = self.client.delete(path=self.url)
-        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(Project.objects.count(), 0)
     
     def test_should_throw_exception_when_deleting_unexisting_project(self):

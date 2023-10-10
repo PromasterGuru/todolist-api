@@ -44,7 +44,7 @@ class ProjectDetailCreateApiView(RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     validator = ProjectValidator()
 
-    def get(self, _, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
             project_queryset = Project.objects.get(id=kwargs['pk'])
             serializer = ProjectDetailsSerializer(project_queryset)
@@ -68,7 +68,9 @@ class ProjectDetailCreateApiView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         try:
-            return super().delete(request, *args, **kwargs)
+            project_queryset = Project.objects.get(pk=kwargs['pk'])
+            project_queryset.delete()
+            return Response(data={'data': {'message': 'Project deleted successfully', 'details': {}}},status=HTTP_200_OK)
         except Project.DoesNotExist as e:
             return self.validator.server_exception(title='Project does not exist', errors=e.args[0], code='PROJECT_DOES_NOT_EXIST', status_code=HTTP_404_NOT_FOUND)
 
