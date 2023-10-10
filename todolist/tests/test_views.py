@@ -81,7 +81,9 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         
     def test_should_throw_project_not_found_exception_when_retrieving_unexisting_project(self):
         response = self.client.get(path=self.unexisting_project_url)
+        data = response.json()
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEquals(data['data']['details']['error_code'], 'PROJECT_DOES_NOT_EXIST')
 
     def test_should_update_project_if_exists(self):
         sample = self.data
@@ -116,7 +118,7 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
                         TASKS UNIT TESTS
 ---------------------------------------------------------------------
 """
-class ProjectTaskListCreateApiViewTest(APITestCase):
+class TaskListCreateApiViewTest(APITestCase):
 
     def setUp(self) -> None:
         self.project = Project.objects.create(name='Hackathon', description='In your application code (e.g., in your backend server)')
@@ -170,23 +172,37 @@ class ProjectTaskListCreateApiViewTest(APITestCase):
         self.assertEquals(data['data']['message'], 'Tasks record retrieved successfully')
         self.assertGreater(len(data['data']['details']), 0)
 
-# class TaskDetailsCreateApiViewTest(APITestCase):
+class TaskDetailsCreateApiViewTest(APITestCase):
 
-#     def setUp(self) -> None:
-#         self.data = {'name':'Database Design', 'description':'Create class and ERD Diagrams'}
-#         self.project = Project.objects.create(name='Creative Todo', description='Task management project')
-#         self.task = Task.objects.create(name="Load Testing", description="Perform load tests", project=self.project)
-#         self.url = reverse('api-task-detail', kwargs={'version': 'v1', 'pk': self.task.pk})
-#         self.invalid_url = reverse('api-task-detail', kwargs={'version': 'v1', 'pk': -999})
+    def setUp(self) -> None:
+        self.data = {'name':'Database Design', 'description':'Create class and ERD Diagrams'}
+        self.project = Project.objects.create(name='Creative Todo', description='Task management project')
+        self.task = Task.objects.create(name="Load Testing", description="Perform load tests", project=self.project)
+        self.url = reverse('api-task-detail', kwargs={'version': 'v1', 'pk': self.task.pk})
+        self.unexisting_task_url = reverse('api-task-detail', kwargs={'version': 'v1', 'pk': 0})
     
-#     def test_get_task(self):
-#         response = self.client.get(path=self.url)
-#         self.assertEquals(response.status_code, status.HTTP_200_OK)
-#         data = response.json()
-#         self.assertEquals(data['id'], self.task.pk)
-#         self.assertEquals(data['name'], self.task.name)
-#         self.assertEquals(data['description'], self.task.description)
+    def test_should_get_task_by_task_id(self):
+        response = self.client.get(path=self.url)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEquals(data['data']['details']['id'], self.task.pk)
 
+            
+    def test_should_throw_task_not_found_exception_when_retrieving_unexisting_task(self):
+        response = self.client.get(path=self.unexisting_task_url)
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEquals(data['data']['details']['error_code'], 'TASK_DOES_NOT_EXIST')
+
+    def test_should_update_task_if_exists(self):
+        sample = self.data
+        sample['name'] = "New Record"
+        response = self.client.put(path=self.url, data=sample, format='json')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.project.refresh_from_db()
+        self.assertEquals(self.project.name, sample['name'])
+        self.assertEquals(self.project.description, sample['description'])
+    
 #     def test_update_task(self):
 #         response = self.client.get(path=self.url)
 #         self.assertEquals(response.status_code, status.HTTP_200_OK)

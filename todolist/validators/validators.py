@@ -3,10 +3,6 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 class AppValidator():
     def server_exception(self, errors, code, title=None, status_code=None):
-        if('non_field_errors' in errors):
-            temp = {}
-            temp['error'] = errors['non_field_errors'][0]
-            errors = temp
         return Response(data={'data': {
                 'message': 'Server was unable to process your request' if title is None else title,
                 'details': {

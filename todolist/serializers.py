@@ -32,7 +32,7 @@ class ProjectDetailsSerializer(ProjectSerializer):
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
 
-class TaskSerializer(TaskSerializer):
+class TaskListSerializer(TaskSerializer):
     class Meta:
         model = Task
         fields = "__all__"
@@ -50,3 +50,11 @@ class TaskSerializer(TaskSerializer):
 
     def validate(self, attrs):
         return super().validate(attrs)
+
+class TaskDetailsSerializer(TaskSerializer):
+    class Meta:
+        model = Task
+        fields = "__all__"
+    
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)

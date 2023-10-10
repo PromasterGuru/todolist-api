@@ -8,6 +8,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         errors = {}
+        if('non_field_errors' in errors):
+            temp = {}
+            temp['error'] = errors['non_field_errors'][0]
+            errors = temp
         if('name' in attrs and ((len(attrs['name']) < 5) | (len(attrs['name']) > 50))): 
             errors['name'] = "Project name must be between 4 and 50 characters"
         if('description' in attrs and ((len(attrs['description']) < 50) | (len(attrs['description']) > 250))): 
@@ -29,6 +33,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         errors = {}
+        if('non_field_errors' in errors):
+            temp = {}
+            temp['error'] = errors['non_field_errors'][0]
+            errors = temp
         if('name' in attrs and ((len(attrs['name']) < 5) | (len(attrs['name']) > 50))): 
             errors['name'] = "Task name must be between 4 and 50 characters"
         if('description' in attrs and ((len(attrs['description']) < 50) | (len(attrs['description']) > 250))): 
