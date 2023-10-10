@@ -22,7 +22,7 @@ class ProjectListCreateApiViewTest(APITestCase):
         data = response.json()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(data['data']['message'], 'Project created successfully')
-        self.assertEquals(Project.objects.count(), 1)
+        self.assertGreater(len(data['data']['details']), 0)
     
     def test_should_update_existing_project_when_duplicate_project_is_created(self):
         project1 = Project.objects.create(name=self.data['name'], description=self.data['description'])
@@ -57,8 +57,8 @@ class ProjectListCreateApiViewTest(APITestCase):
     def test_should_get_projects(self):
         Project.objects.create(name=self.data['name'], description=self.data['description'])
         response = self.client.get(path=self.url)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
         data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(data['data']['message'], 'Projects record retrieved successfully')
         self.assertGreater(len(data['data']['details']), 0)
  
@@ -70,6 +70,9 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         self.url = reverse('api-project-detail', kwargs={'version': 'v1', 'pk': self.project.pk})
         self.unexisting_project_url = reverse('api-project-detail', kwargs={'version': 'v1', 'pk':0})
     
+    def test_there_should_have_at_leaset_one_project(self):
+        self.assertEquals(Project.objects.count(), 1)
+
     def test_should_get_project_by_project_id(self):
         response = self.client.get(path=self.url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
@@ -93,23 +96,20 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         sample = self.data
         sample['name'] = "New Record"
         response = self.client.put(path=self.unexisting_project_url, data=sample, format='json')
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Project.objects.count(), 2)
         self.assertEquals(data['data']['details']['name'], sample['name'])
         self.assertEquals(data['data']['details']['description'], sample['description'])
 
     def test_should_delete_existing_project(self):
-        self.assertEquals(Project.objects.count(), 1)
         response = self.client.delete(path=self.url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(Project.objects.count(), 0)
     
     def test_should_throw_exception_when_deleting_unexisting_project(self):
-        self.assertEquals(Project.objects.count(), 1)
         response = self.client.delete(path=self.unexisting_project_url)
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
-
 
 """
 ---------------------------------------------------------------------
@@ -119,32 +119,56 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
 class ProjectTaskListCreateApiViewTest(APITestCase):
 
     def setUp(self) -> None:
-        self.project = Project.objects.create(name='Creative Todo', description='Task management project')
+        self.project = Project.objects.create(name='Hackathon', description='In your application code (e.g., in your backend server)')
         self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
-        self.data = {'name': 'UI/UX Design', 'description': 'Design figma designs'}
+        self.data = {'name': 'Data Backup', 'description': 'Develop a robust data backup and recovery system to protect against data loss'}
     
     def test_there_should_have_at_leaset_one_project(self):
         self.assertEquals(Project.objects.count(), 1)
 
-    def test_create_task(self):
-            self.assertEquals(Task.objects.count(), 0)
-            response = self.client.post(path=self.url, data=self.data, format='json')
-            self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-            task = Task.objects.first()
-            self.assertEquals(task.name, self.data['name'])
+    def test_should_create_new_create_task(self):
+        self.assertEquals(Task.objects.count(), 0)
+        response = self.client.post(path=self.url, data=self.data, format='json')
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(data['data']['details']['name'], self.data['name'])
 
-#     def test_get_tasks_when_there_are_no_tasks_on_db(self):
-#         response = self.client.get(path=self.url)
-#         self.assertEquals(response.status_code, status.HTTP_200_OK)
-#         self.assertEquals(len(response.json()), 0)
+    def test_should_throw_exception_when_retrieving_tasks_there_is_no_task_record(self):
+        response = self.client.get(path=self.url)
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEquals(data['data']['details']['error_code'], 'TASKS_RECORD_NOT_FOUND')
 
-#     def test_get_tasks(self):
-#         Task.objects.create(name=self.data['name'], description=self.data['description'])
-#         response = self.client.get(path=self.url)
-#         self.assertEquals(response.status_code, status.HTTP_200_OK)
-#         data = response.json()
-#         self.assertEquals(data[0]['name'], self.data['name'])
-#         self.assertEquals(data[0]['description'], self.data['description'])
+    def test_should_throw_an_error_when_user_attempts_to_create_a_duplicate_task(self):
+        Task.objects.create(name=self.data['name'], description=self.data['description'], project=self.project)
+        response = self.client.post(path=self.url, data=self.data, format='json')
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(data['data']['details']['error_code'], 'SERVER_VALIDATION_FAILURE')
+
+    def test_should_throw_exception_when_task_name_has_invalid_length(self):
+        sample = self.data
+        sample['name'] = "Test"
+        response = self.client.post(path=self.url, data=self.data, format='json')
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(data['data']['details']['error_code'], 'SERVER_VALIDATION_FAILURE')
+     
+    def test_should_throw_exception_when_task_description_has_invalid_length(self):
+        sample = self.data
+        sample['description'] = "Test Description"
+        response = self.client.post(path=self.url, data=self.data, format='json')
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(data['data']['details']['error_code'], 'SERVER_VALIDATION_FAILURE')
+
+    def test_should_get_tasks(self):
+        Task.objects.create(name=self.data['name'], description=self.data['description'], project=self.project)
+        response = self.client.get(path=self.url)
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(data['data']['message'], 'Tasks record retrieved successfully')
+        self.assertGreater(len(data['data']['details']), 0)
 
 # class TaskDetailsCreateApiViewTest(APITestCase):
 

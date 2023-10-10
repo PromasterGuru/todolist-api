@@ -4,7 +4,7 @@ from todolist.serializers import ProjectListSerializer, TaskSerializer, ProjectD
 from todolist.models import Project, Task
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
-from todolist.validators.validators import ProjectValidator
+from todolist.validators.validators import AppValidator
 
 class ProjectListCreateApiView(ListCreateAPIView):
     """
@@ -14,7 +14,7 @@ class ProjectListCreateApiView(ListCreateAPIView):
     permission_classes = []
     serializer_class = ProjectListSerializer
     queryset = Project.objects.all()
-    validator = ProjectValidator()
+    validator = AppValidator()
 
     def create(self, request, *args, **kwargs):
         serializer = ProjectListSerializer(data=request.data)
@@ -42,7 +42,7 @@ class ProjectDetailCreateApiView(RetrieveUpdateDestroyAPIView):
     permission_classes = []
     serializer_class = ProjectDetailsSerializer
     queryset = Project.objects.all()
-    validator = ProjectValidator()
+    validator = AppValidator()
 
     def get(self, request, *args, **kwargs):
         try:
@@ -82,28 +82,27 @@ class ProjectTaskListCreateApiView(ListCreateAPIView):
     permission_classes = []
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
+    validator = AppValidator()
 
     def create(self, request, *args, **kwargs):
         """Override post method to validate project before creating task"""
+        request.data['project'] = kwargs['pk']
+        serializer = TaskSerializer(data=request.data)
+        serializer.is_valid(raise_exception=False)
+        if len(serializer.errors) > 0:
+            return self.validator.server_validation_exception(errors=serializer.errors)
+        serializer.save()
+        return Response(data={'data': {'message': 'Task created successfully', 'details': serializer.data}},status=HTTP_201_CREATED)
+    
+    def get(self, request, *args, **kwargs):
         try:
-            request.data['project'] = kwargs['pk']
-            serializer = TaskSerializer(data=request.data)
-            serializer.is_valid(raise_exception=False)
-            if len(serializer.errors) > 0:
-                return self.validator.server_validation_exception(errors=serializer.errors)
-            serializer.save()
-            return Response(data={'data': {'message': 'Task created successfully', 'details': serializer.data}},status=HTTP_201_CREATED)
+            tasks_queryset = Task.objects.filter(project=kwargs['pk'])
+            serializer = TaskSerializer(tasks_queryset, many=True)
+            if(len(serializer.data) > 0):
+                return Response(data={'data': {'message': 'Tasks record retrieved successfully', 'details': serializer.data}},status=HTTP_200_OK)
+            raise Project.DoesNotExist("You have no tasks at the moment, create a new one to start.")
         except Project.DoesNotExist as e:
-            return self.server_exception(title='Project does not exist', errors=e.args[0], code='PROJECT_DOES_NOT_EXIST')
-
-class TaskListCreateApiView(ListCreateAPIView):
-    """
-    API view to retrieve list of tasks or create new
-    """
-    authentication_classes = []
-    permission_classes = []
-    serializer_class = TaskSerializer
-    queryset = Task.objects.all()
+            return self.validator.server_exception(title='No tasks records found',errors=e.args[0], code='TASKS_RECORD_NOT_FOUND', status_code=HTTP_404_NOT_FOUND)
 
 class TaskDetailCreateApiView(RetrieveUpdateDestroyAPIView):
     """
@@ -113,3 +112,4 @@ class TaskDetailCreateApiView(RetrieveUpdateDestroyAPIView):
     permission_classes = []
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
+    validator = AppValidator()    

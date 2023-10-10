@@ -1,7 +1,6 @@
-from rest_framework import serializers
 from todolist.models import Project, Task
 from rest_framework.validators import UniqueTogetherValidator
-from todolist.base.serializers import ProjectSerializer
+from todolist.base.serializers import ProjectSerializer, TaskSerializer
 
 class ProjectListSerializer(ProjectSerializer):
 
@@ -29,16 +28,16 @@ class ProjectDetailsSerializer(ProjectSerializer):
     class Meta:
         model = Project
         fields = "__all__"
-
+    
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskSerializer(TaskSerializer):
     class Meta:
         model = Task
         fields = "__all__"
         validators = [
-            UniqueTogetherValidator(Task.objects.all(), fields=('project', 'name'))
+            UniqueTogetherValidator(Task.objects.all(), fields=('project', 'name'), message="Task already exists")
         ]
 
     def __init__(self, instance=None, data=..., **kwargs):

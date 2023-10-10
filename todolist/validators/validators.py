@@ -1,15 +1,19 @@
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-class ProjectValidator():
+class AppValidator():
     def server_exception(self, errors, code, title=None, status_code=None):
+        if('non_field_errors' in errors):
+            temp = {}
+            temp['error'] = errors['non_field_errors'][0]
+            errors = temp
         return Response(data={'data': {
                 'message': 'Server was unable to process your request' if title is None else title,
                 'details': {
-                    'server_error': errors,
+                    'server_errors': errors,
                     'error_code': code
                 }} 
-            }, status=HTTP_400_BAD_REQUEST if status_code is None else status_code)
+            }, status=HTTP_404_NOT_FOUND if status_code is None else status_code)
     
     def server_validation_exception(self, errors):
         return self.server_exception(errors=errors, code='SERVER_VALIDATION_FAILURE', status_code=HTTP_400_BAD_REQUEST) 
