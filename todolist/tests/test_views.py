@@ -215,25 +215,11 @@ class TaskDetailsCreateApiViewTest(APITestCase):
         self.assertEquals(data['data']['details']['name'], sample['name'])
         self.assertEquals(data['data']['details']['description'], sample['description'])
 
-
-
-#     def test_update_unexisting_task(self):
-#         data = {
-#             'name': "Hobby",
-#             'description': "Playing Guitar"
-#         }
-#         response = self.client.put(path=self.invalid_url, data=data, format='json')
-#         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_should_delete_existing_task(self):
+        response = self.client.delete(path=self.url)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(Task.objects.count(), 0)
     
-#     def test_delete_task(self):
-#         self.assertEquals(Task.objects.count(), 1)
-#         response = self.client.delete(path=self.url)
-#         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
-#         self.assertEquals(Task.objects.count(), 0)
-    
-#     def test_delete_unexisting_task(self):
-#         self.assertEquals(Task.objects.count(), 1)
-#         response = self.client.delete(path=self.invalid_url)
-#         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
-#         self.assertEquals(Task.objects.count(), 1)
-        
+    def test_should_throw_exception_when_deleting_unexisting_task(self):
+        response = self.client.delete(path=self.unexisting_task_url)
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)

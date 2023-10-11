@@ -86,13 +86,18 @@ class TaskListCreateApiView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """Override post method to validate project before creating task"""
-        request.data['project'] = kwargs['project_id']
-        serializer = TaskListSerializer(data=request.data)
-        serializer.is_valid(raise_exception=False)
-        if len(serializer.errors) > 0:
-            return self.validator.server_validation_exception(errors=serializer.errors)
-        serializer.save()
-        return Response(data={'data': {'message': 'Task created successfully', 'details': serializer.data}},status=HTTP_201_CREATED)
+        try:
+            project = Project.objects.get(id=kwargs['project_id'])
+            request.data['project'] = project.pk
+            serializer = TaskListSerializer(data=request.data)
+            serializer.is_valid(raise_exception=False)
+            if len(serializer.errors) > 0:
+                return self.validator.server_validation_exception(errors=serializer.errors)
+            serializer.save()
+            return Response(data={'data': {'message': 'Task created successfully', 'details': serializer.data}},status=HTTP_201_CREATED)
+        except Project.DoesNotExist as e:
+            return self.validator.server_exception(title='Project associated to this task was not found', errors=e.args[0], code='TASK_RECORD_NOT_CREATED')
+        
     
     def get(self, request, *args, **kwargs):
         try:
@@ -124,15 +129,27 @@ class TaskDetailsApiView(RetrieveUpdateDestroyAPIView):
     
     def update(self, request, *args, **kwargs):
         try:
-            request.data['project'] = kwargs['project_id']
+            project = Project.objects.get(id=kwargs['project_id'])
+            request.data['project'] = project.pk
             serializer = TaskDetailsSerializer(data=request.data, many=False)
             serializer.is_valid(raise_exception=False)
             if len(serializer.errors) > 0:
                 return self.validator.server_validation_exception(serializer.errors)
-            updated_values = {'name':request.data['name'], 'description':request.data['description'], 'project': Project.objects.get(id=kwargs['project_id'])}
+            updated_values = {'name':request.data['name'], 'description':request.data['description'], 'project': project}
             task, created = Task.objects.update_or_create(id=kwargs['task_id'], defaults=updated_values)
             status_code = HTTP_201_CREATED if created else HTTP_200_OK
             serializer = TaskDetailsSerializer(task)
             return Response(data={'data': {'message': 'Task record updated successfully', 'details': serializer.data}},status=status_code)
-        except BaseException as e:
-            return self.validator.server_exception(title='Failed to update task', errors=e.args[0], code='TASK_RECORD_NOT_UPDATED')
+        except Project.DoesNotExist as e:
+            return self.validator.server_exception(title='Project associated to this task was not found', errors=e.args[0], code='TASK_RECORD_NOT_UPDATED')
+        
+    def delete(self, request, *args, **kwargs):
+        try:
+            project=Project.objects.get(id=kwargs['project_id'])
+            task_queryset = Task.objects.get(id=kwargs['task_id'], project=project)
+            task_queryset.delete()
+            return Response(data={'data': {'message': 'Task deleted successfully', 'details': {}}},status=HTTP_200_OK)
+        except Project.DoesNotExist as e:
+            return self.validator.server_exception(title='Project associated to this task was not found', errors=e.args[0], code='TASK_RECORD_NOT_DELETED')
+        except Task.DoesNotExist as e:
+            return self.validator.server_exception(title='Task does not exist', errors=e.args[0], code='TASK_RECORD_NOT_DELETED', status_code=HTTP_404_NOT_FOUND)
