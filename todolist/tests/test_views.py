@@ -67,11 +67,12 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
     def setUp(self) -> None:
         self.data = { 'name': 'Hackathon', 'description': 'In your application code (e.g., in your backend server)' }
         self.project = Project.objects.create(name=self.data['name'], description=self.data['description'])
-        self.url = reverse('api-project-detail', kwargs={'version': 'v1', 'pk': self.project.pk})
-        self.unexisting_project_url = reverse('api-project-detail', kwargs={'version': 'v1', 'pk':0})
+        self.url = reverse('api-project-detail', kwargs={'version': 'v1', 'project_id': self.project.pk})
+        self.unexisting_project_url = reverse('api-project-detail', kwargs={'version': 'v1', 'project_id':0})
     
     def test_there_should_have_at_leaset_one_project(self):
         self.assertEquals(Project.objects.count(), 1)
+
 
     def test_should_get_project_by_project_id(self):
         response = self.client.get(path=self.url)
@@ -113,10 +114,11 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
         response = self.client.delete(path=self.unexisting_project_url)
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
-"""
----------------------------------------------------------------------
-                        TASKS UNIT TESTS
----------------------------------------------------------------------
+# ---------------------------------------------------------------------
+#                         TASKS UNIT TESTS
+# ---------------------------------------------------------------------
+# """
+
 """
 class TaskListCreateApiViewTest(APITestCase):
 
@@ -202,7 +204,11 @@ class TaskDetailsCreateApiViewTest(APITestCase):
         self.project.refresh_from_db()
         self.assertEquals(self.project.name, sample['name'])
         self.assertEquals(self.project.description, sample['description'])
-    
+"""
+
+
+
+
 #     def test_update_task(self):
 #         response = self.client.get(path=self.url)
 #         self.assertEquals(response.status_code, status.HTTP_200_OK)

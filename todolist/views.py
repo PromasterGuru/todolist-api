@@ -46,7 +46,7 @@ class ProjectDetailsApiView(RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            project_queryset = Project.objects.get(id=kwargs['pk'])
+            project_queryset = Project.objects.get(id=kwargs['project_id'])
             serializer = ProjectDetailsSerializer(project_queryset)
             return Response(data={'data': {'message': 'Project record retrieved successfully', 'details': serializer.data}},status=HTTP_200_OK)
         except Project.DoesNotExist as e:
@@ -59,7 +59,7 @@ class ProjectDetailsApiView(RetrieveUpdateDestroyAPIView):
                 if len(serializer.errors) > 0:
                     return self.validator.server_exception(serializer.errors, 'PROJECT_UPDATE_FAILURE')
                 updated_values = {'name':request.data['name'], 'description':request.data['description']}
-                project, created = Project.objects.update_or_create(id=kwargs['pk'], defaults=updated_values)
+                project, created = Project.objects.update_or_create(id=kwargs['project_id'], defaults=updated_values)
                 status_code = HTTP_201_CREATED if created else HTTP_200_OK
                 serializer = ProjectDetailsSerializer(project)
                 return Response(data={'data': {'message': 'Project record updated successfully', 'details': serializer.data}},status=status_code)
@@ -68,7 +68,7 @@ class ProjectDetailsApiView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         try:
-            project_queryset = Project.objects.get(pk=kwargs['pk'])
+            project_queryset = Project.objects.get(pk=kwargs['project_id'])
             project_queryset.delete()
             return Response(data={'data': {'message': 'Project deleted successfully', 'details': {}}},status=HTTP_200_OK)
         except Project.DoesNotExist as e:
@@ -124,12 +124,12 @@ class TaskDetailsApiView(RetrieveUpdateDestroyAPIView):
     
     def update(self, request, *args, **kwargs):
         try:
-            request.data['project'] = kwargs['pk']
+            request.data['project'] = kwargs['project_id']
             serializer = TaskDetailsSerializer(data=request.data, many=False)
             serializer.is_valid(raise_exception=False)
             if len(serializer.errors) > 0:
                 return self.validator.server_exception(serializer.errors, 'TASK_UPDATE_FAILURE')
-            updated_values = {'name':request.data['name'], 'description':request.data['description'], 'project': request.data['project']}
+            updated_values = {'name':request.data['name'], 'description':request.data['description'], 'project':request.data['project']}
             task, created = Task.objects.update_or_create(id=kwargs['pk'], defaults=updated_values)
             status_code = HTTP_201_CREATED if created else HTTP_200_OK
             serializer = TaskDetailsSerializer(task)
