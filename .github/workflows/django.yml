@@ -37,7 +37,13 @@ jobs:
           --health-interval 10s 
           --health-timeout 5s 
           --health-retries 5
-
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
@@ -54,14 +60,6 @@ jobs:
       - uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '16'
-      # - name: Load Environment Config
-      #   env:
-      #     SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      #     DB_NAME: ${{ secrets.DB_NAME }}
-      #     DB_USER: ${{ secrets.DB_USER }}
-      #     DB_PASS: ${{ secrets.DB_PASS }}
-      #     DB_HOST: ${{ secrets.DB_HOST }}
-      #     DB_PORT: ${{ secrets.DB_PORT }}
       - name: Run migrations
         run:  python manage.py migrate
       - name: Run Tests
