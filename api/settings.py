@@ -77,13 +77,21 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': os.environ.get('DB_NAME'),
+    #     'USER':  os.environ.get('DB_USER'),
+    #     'PASSWORD':  os.environ.get('DB_PASS'),
+    #     'HOST':  os.environ.get('DB_HOST'),
+    #     'PORT':  os.environ.get('DB_PORT'),
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER':  os.environ.get('DB_USER'),
-        'PASSWORD':  os.environ.get('DB_PASS'),
-        'HOST':  os.environ.get('DB_HOST'),
-        'PORT':  os.environ.get('DB_PORT'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5433',  # Use the mapped port
     }
 }
 
