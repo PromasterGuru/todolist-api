@@ -29,11 +29,13 @@ jobs:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: postgres
-            POSTGRES_PORT: 5432
-        ports:
-          - 5432:5432
+        ports: [5432:5432]
         # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd pg_isready 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -51,14 +53,14 @@ jobs:
       - uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '16'
-      - name: Load Environment Config
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASS: ${{ secrets.DB_PASS }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
+      # - name: Load Environment Config
+      #   env:
+      #     SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      #     DB_NAME: ${{ secrets.DB_NAME }}
+      #     DB_USER: ${{ secrets.DB_USER }}
+      #     DB_PASS: ${{ secrets.DB_PASS }}
+      #     DB_HOST: ${{ secrets.DB_HOST }}
+      #     DB_PORT: ${{ secrets.DB_PORT }}
       - name: Run migrations
         run:  python manage.py migrate
       - name: Run Tests
