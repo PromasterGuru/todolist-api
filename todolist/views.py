@@ -86,7 +86,7 @@ class TaskListCreateApiView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """Override post method to validate project before creating task"""
-        request.data['project'] = kwargs['pk']
+        request.data['project'] = kwargs['project_id']
         serializer = TaskListSerializer(data=request.data)
         serializer.is_valid(raise_exception=False)
         if len(serializer.errors) > 0:
@@ -96,7 +96,7 @@ class TaskListCreateApiView(ListCreateAPIView):
     
     def get(self, request, *args, **kwargs):
         try:
-            tasks_queryset = Task.objects.filter(project=kwargs['pk'])
+            tasks_queryset = Task.objects.filter(project=kwargs['project_id'])
             serializer = TaskListSerializer(tasks_queryset, many=True)
             if(len(serializer.data) > 0):
                 return Response(data={'data': {'message': 'Tasks record retrieved successfully', 'details': serializer.data}},status=HTTP_200_OK)

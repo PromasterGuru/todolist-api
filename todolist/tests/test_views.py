@@ -117,14 +117,14 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
 # ---------------------------------------------------------------------
 #                         TASKS UNIT TESTS
 # ---------------------------------------------------------------------
-# """
+# 
 
-"""
+
 class TaskListCreateApiViewTest(APITestCase):
 
     def setUp(self) -> None:
         self.project = Project.objects.create(name='Hackathon', description='In your application code (e.g., in your backend server)')
-        self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'pk': self.project.pk})
+        self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'project_id': self.project.pk})
         self.data = {'name': 'Data Backup', 'description': 'Develop a robust data backup and recovery system to protect against data loss'}
     
     def test_there_should_have_at_leaset_one_project(self):
@@ -136,7 +136,7 @@ class TaskListCreateApiViewTest(APITestCase):
         data = response.json()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(data['data']['details']['name'], self.data['name'])
-
+"""
     def test_should_throw_exception_when_retrieving_tasks_there_is_no_task_record(self):
         response = self.client.get(path=self.url)
         data = response.json()
