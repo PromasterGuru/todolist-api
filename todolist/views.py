@@ -116,7 +116,7 @@ class TaskDetailsApiView(RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            task_queryset = Task.objects.get(id=kwargs['pk'])
+            task_queryset = Task.objects.get(id=kwargs['task_id'])
             serializer = TaskDetailsSerializer(task_queryset)
             return Response(data={'data': {'message': 'Task record retrieved successfully', 'details': serializer.data}},status=HTTP_200_OK)
         except Task.DoesNotExist as e:

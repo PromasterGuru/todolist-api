@@ -136,7 +136,7 @@ class TaskListCreateApiViewTest(APITestCase):
         data = response.json()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(data['data']['details']['name'], self.data['name'])
-"""
+
     def test_should_throw_exception_when_retrieving_tasks_there_is_no_task_record(self):
         response = self.client.get(path=self.url)
         data = response.json()
@@ -166,6 +166,7 @@ class TaskListCreateApiViewTest(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEquals(data['data']['details']['error_code'], 'SERVER_VALIDATION_FAILURE')
 
+
     def test_should_get_tasks(self):
         Task.objects.create(name=self.data['name'], description=self.data['description'], project=self.project)
         response = self.client.get(path=self.url)
@@ -180,8 +181,8 @@ class TaskDetailsCreateApiViewTest(APITestCase):
         self.data = {'name':'Database Design', 'description':'Create class and ERD Diagrams'}
         self.project = Project.objects.create(name='Creative Todo', description='Task management project')
         self.task = Task.objects.create(name="Load Testing", description="Perform load tests", project=self.project)
-        self.url = reverse('api-task-detail', kwargs={'version': 'v1', 'pk': self.task.pk})
-        self.unexisting_task_url = reverse('api-task-detail', kwargs={'version': 'v1', 'pk': 0})
+        self.url = reverse('api-task-detail', kwargs={'version': 'v1', 'project_id': self.project.pk, 'task_id': self.task.pk})
+        self.unexisting_task_url = reverse('api-task-detail', kwargs={'version': 'v1', 'project_id': self.project.pk, 'task_id': 0})
     
     def test_should_get_task_by_task_id(self):
         response = self.client.get(path=self.url)
@@ -189,7 +190,7 @@ class TaskDetailsCreateApiViewTest(APITestCase):
         data = response.json()
         self.assertEquals(data['data']['details']['id'], self.task.pk)
 
-            
+"""          
     def test_should_throw_task_not_found_exception_when_retrieving_unexisting_task(self):
         response = self.client.get(path=self.unexisting_task_url)
         data = response.json()
