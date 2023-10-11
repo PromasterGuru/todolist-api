@@ -25,6 +25,8 @@ jobs:
     services:
       postgres:
         image: postgres:latest
+        environment:
+            POSTGRES_PASSWORD: postgres_password
         env:
             POSTGRES_DB: postgres
             POSTGRES_USER: postgres
