@@ -88,7 +88,7 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
 
     def test_should_update_project_if_exists(self):
         sample = self.data
-        sample['name'] = "New Record"
+        sample['name'] = "New Project"
         response = self.client.put(path=self.url, data=sample, format='json')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.project.refresh_from_db()
@@ -97,7 +97,7 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
     
     def test_update_should_create_a_new_project_if_does_not_exists(self):
         sample = self.data
-        sample['name'] = "New Record"
+        sample['name'] = "New Project"
         response = self.client.put(path=self.unexisting_project_url, data=sample, format='json')
         data = response.json()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
@@ -123,9 +123,9 @@ class ProjectDetailsCreateApiViewTest(APITestCase):
 class TaskListCreateApiViewTest(APITestCase):
 
     def setUp(self) -> None:
+        self.data = {'name': 'Data Backup', 'description': 'Develop a robust data backup and recovery system to protect against data loss'}
         self.project = Project.objects.create(name='Hackathon', description='In your application code (e.g., in your backend server)')
         self.url = reverse('api-project-tasks-list', kwargs= {'version': 'v1', 'project_id': self.project.pk})
-        self.data = {'name': 'Data Backup', 'description': 'Develop a robust data backup and recovery system to protect against data loss'}
     
     def test_there_should_have_at_leaset_one_project(self):
         self.assertEquals(Project.objects.count(), 1)
@@ -178,7 +178,7 @@ class TaskListCreateApiViewTest(APITestCase):
 class TaskDetailsCreateApiViewTest(APITestCase):
 
     def setUp(self) -> None:
-        self.data = {'name':'Database Design', 'description':'Create class and ERD Diagrams'}
+        self.data = {'name': 'Data Backup', 'description': 'Develop a robust data backup and recovery system to protect against data loss'}
         self.project = Project.objects.create(name='Creative Todo', description='Task management project')
         self.task = Task.objects.create(name="Load Testing", description="Perform load tests", project=self.project)
         self.url = reverse('api-task-detail', kwargs={'version': 'v1', 'project_id': self.project.pk, 'task_id': self.task.pk})
@@ -189,8 +189,7 @@ class TaskDetailsCreateApiViewTest(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertEquals(data['data']['details']['id'], self.task.pk)
-
-"""          
+          
     def test_should_throw_task_not_found_exception_when_retrieving_unexisting_task(self):
         response = self.client.get(path=self.unexisting_task_url)
         data = response.json()
@@ -199,29 +198,24 @@ class TaskDetailsCreateApiViewTest(APITestCase):
 
     def test_should_update_task_if_exists(self):
         sample = self.data
-        sample['name'] = "New Record"
+        sample['name'] = "Updated Task"
         response = self.client.put(path=self.url, data=sample, format='json')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.project.refresh_from_db()
-        self.assertEquals(self.project.name, sample['name'])
-        self.assertEquals(self.project.description, sample['description'])
-"""
+        self.task.refresh_from_db()
+        self.assertEquals(self.task.name, sample['name'])
+        self.assertEquals(self.task.description, sample['description'])
+
+    def test_update_should_create_a_new_task_if_does_not_exists(self):
+        sample = self.data
+        sample['name'] = "New Task"
+        response = self.client.put(path=self.unexisting_task_url, data=sample, format='json')
+        data = response.json()
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(Task.objects.count(), 2)
+        self.assertEquals(data['data']['details']['name'], sample['name'])
+        self.assertEquals(data['data']['details']['description'], sample['description'])
 
 
-
-
-#     def test_update_task(self):
-#         response = self.client.get(path=self.url)
-#         self.assertEquals(response.status_code, status.HTTP_200_OK)
-#         data = {
-#             'name': "Architecture",
-#             'description': "Database Architecture"
-#         }
-#         response = self.client.put(path=self.url, data=data, format='json')
-#         self.assertEquals(response.status_code, status.HTTP_200_OK)
-#         self.task.refresh_from_db()
-#         self.assertEquals(self.task.name, data['name'])
-#         self.assertEquals(self.task.description, data['description'])
 
 #     def test_update_unexisting_task(self):
 #         data = {
