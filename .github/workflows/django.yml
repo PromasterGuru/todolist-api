@@ -1,0 +1,59 @@
+name: Example CI Django + Postgres Tests
+
+# Controls when the workflow will run
+on:
+  # Allows you to call this workflow within another workflow
+  workflow_call:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  # Triggered based on the git event type
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # If you want to test multiple python version(s)
+    strategy:
+      matrix:
+        python-version: ["3.11"] # ["3.8", "3.9", "3.10"]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: "Retrieve secret keys"
+        run: |
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: psycopg2 prerequisites
+        run: sudo apt-get install libpq-dev
+      - name: Install requirements
+        run: |
+          pip install -r requirements.txt
+      - uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '14'
+      - name: Run migrations
+        run: python manage.py migrate
+      - name: Run Tests
+        run: |
+          coverage run --source='.' ./manage.py test
+          coverage report
+      - name: Report Coverage
+        run: |
+          codeclimate-test-reporter --file .coverage
