@@ -1,41 +1,46 @@
-name: Example CI Django + Postgres Tests
+name: Creative Todo CICD
 
-# Controls when the workflow will run
 on:
-  # Allows you to call this workflow within another workflow
   workflow_call:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  # Triggered based on the git event type
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
+    tags:
+      - '!*'
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+    tags:
+      - '!*'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    # If you want to test multiple python version(s)
     strategy:
       matrix:
-        python-version: ["3.11"] # ["3.8", "3.9", "3.10"]
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      - name: "Retrieve secret keys"
-        run: |
+        python-version: ["3.11"]
+    services:
+      postgres:
+        image: postgres:latest
         env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASS: ${{ secrets.DB_PASS }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
-      - name: Checkout code
-        uses: actions/checkout@v2
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASS }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        ports:
+          - '5433:5432'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASS: ${{ secrets.DB_PASS }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+    steps:
+      - uses: actions/checkout@v2
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -43,17 +48,25 @@ jobs:
       - name: psycopg2 prerequisites
         run: sudo apt-get install libpq-dev
       - name: Install requirements
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
       - uses: harmon758/postgresql-action@v1
         with:
-          postgresql version: '14'
+          postgresql version: '16'
       - name: Run migrations
-        run: python manage.py migrate
-      - name: Run Tests
         run: |
-          coverage run --source='.' ./manage.py test
+          python manage.py makemigrations
+          python manage.py migrate
+      - name: Run tests with coverage.py
+        run: |
+          coverage run --source='.' manage.py test
           coverage report
-      - name: Report Coverage
+          coverage xml -o coverage.xml
+      - name: Upload coverage to Code Climate
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
         run: |
-          codeclimate-test-reporter --file .coverage
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+          ./cc-test-reporter format-coverage -t coverage.py -o codeclimate.json < coverage.xml
+          ./cc-test-reporter upload-coverage -i codeclimate.json
