@@ -65,11 +65,13 @@ jobs:
         with:
           postgresql version: '16'
       - name: Run migrations
-        run:  python manage.py migrate
+        run: |
+         python manage.py migrate
+         coverage run --source='.' ./manage.py test
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
         env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN}}
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
         with:
-          coverageCommand: coverage run --source='.' ./manage.py test
+          coverageCommand: coverage report
           debug: true
