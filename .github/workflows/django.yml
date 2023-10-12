@@ -1,45 +1,36 @@
 name: Creative Todo CICD
 
-# Controls when the workflow will run
 on:
-  # Allows you to call this workflow within another workflow
   workflow_call:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  # Triggered based on the git event type
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     tags:
-      - '!*' # Do not execute on tags
+      - '!*'
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     tags:
-      - '!*' # Do not execute on tags
+      - '!*'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    # If you want to test multiple python version(s)
     strategy:
       matrix:
-        python-version: ["3.11"] # ["3.8", "3.9", "3.10"]
+        python-version: ["3.11"]
     services:
       postgres:
         image: postgres:latest
         env:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: postgres
-        ports: 
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
           - '5433:5432'
-        # needed because the postgres container does not provide a healthcheck
         options: >-
-          --health-cmd pg_isready 
-          --health-interval 10s 
-          --health-timeout 5s 
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
           --health-retries 5
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -48,9 +39,7 @@ jobs:
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_PORT: ${{ secrets.DB_PORT }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
       - uses: actions/checkout@v2
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -66,10 +55,11 @@ jobs:
       - name: Run migrations
         run: |
           python manage.py migrate
-      - name: Run tests with coverage
+      - name: Run tests with coverage.py
         run: |
-          coverage run --source='.' ./manage.py test
+          coverage run --source='.' manage.py test
           coverage report
+          coverage xml -o coverage.xml
       - name: Upload coverage to Code Climate
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
@@ -77,5 +67,5 @@ jobs:
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
-          ./cc-test-reporter format-coverage -t coverage.py -o codeclimate.json
-          cat ./coverage/lcov.info | ./cc-test-reporter upload-coverage
+          ./cc-test-reporter format-coverage -t coverage.py -o codeclimate.json < coverage.xml
+          ./cc-test-reporter upload-coverage -i codeclimate.json
