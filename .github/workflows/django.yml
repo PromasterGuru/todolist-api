@@ -73,4 +73,5 @@ jobs:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
         with:
           coverageCommand: coverage run --source='.' ./manage.py test
+          coverageInputType: coverage.py
           debug: true
