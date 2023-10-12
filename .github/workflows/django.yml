@@ -66,8 +66,8 @@ jobs:
             postgresql version: '16'
       - name: Run migrations
         run: |
-        python manage.py migrate
-        python manage.py collectstatic --noinput
+          python manage.py migrate
+          python manage.py collectstatic --noinput
       - name: Run tests with coverage
         run: |
           coverage run --source='.' ./manage.py test
