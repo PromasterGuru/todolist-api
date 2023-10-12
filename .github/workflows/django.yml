@@ -26,7 +26,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
-          - '5432:5432'
+          - '5433:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -54,7 +54,7 @@ jobs:
           postgresql version: '16'
       - name: Run migrations
         run: |
-          
+
           python manage.py migrate
       - name: Run tests with coverage.py
         run: |
