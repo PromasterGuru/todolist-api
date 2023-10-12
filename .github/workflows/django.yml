@@ -74,5 +74,6 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
         run: |
-          cc-test-reporter format-coverage -t coverage.xml -d
-          cc-test-reporter upload-coverage
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          ./cc-test-reporter format-coverage -t coverage.xml -d
+          ./cc-test-reporter upload-coverage
