@@ -69,12 +69,12 @@ jobs:
       - name: Run tests with coverage
         run: |
           coverage run --source='.' ./manage.py test
-          coverage xml -o coverage.xml
+          coverage report
       - name: Upload coverage to Code Climate
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
-          ./cc-test-reporter format-coverage -t coverage.xml -d
+          ./cc-test-reporter format-coverage -t coverage.py -d
           ./cc-test-reporter upload-coverage
