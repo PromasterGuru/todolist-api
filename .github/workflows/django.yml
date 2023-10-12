@@ -59,20 +59,22 @@ jobs:
       - name: psycopg2 prerequisites
         run: sudo apt-get install libpq-dev
       - name: Install requirements
-        run: |
-          pip install -r requirements.txt
-      - uses: harmon758/postgresql-action@v1
-        with:
-          postgresql version: '16'
+        run: pip install -r requirements.txt
+      - name: Setup Postgres
+        - uses: harmon758/postgresql-action@v1
+          with:
+            postgresql version: '16'
       - name: Run migrations
         run: |
-         python manage.py migrate
-         coverage run --source='.' ./manage.py test
-         coverage report
-      - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v5.0.0
+        python manage.py migrate
+        python manage.py collectstatic --noinput
+      - name: Run tests with coverage
+        run: |
+          coverage run --source='.' ./manage.py test
+          coverage xml -o coverage.xml
+      - name: Upload coverage to Code Climate
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
-        with:
-          coverageCommand: codeclimate-test-reporter
-          debug: true
+        run: |
+          cc-test-reporter format-coverage -t coverage.xml -d
+          cc-test-reporter upload-coverage
