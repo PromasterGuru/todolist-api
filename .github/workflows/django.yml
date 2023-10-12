@@ -68,10 +68,18 @@ jobs:
         run: |
          python manage.py migrate
       - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v5.0.0
+      - name: Upload CodeClimate test coverage
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter format-coverage -t coverage.py -o codeclimate.json
+          ./cc-test-reporter upload-coverage -i codeclimate.json
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
-        with:
-          coverageCommand: coverage run --source='.' ./manage.py test
-          coverageInputType: coverage.py
-          debug: true
+          
+        # uses: paambaati/codeclimate-action@v5.0.0
+        # env:
+        #   CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
+        # with:
+        #   coverageCommand: coverage run --source='.' ./manage.py test
+        #   debug: true
