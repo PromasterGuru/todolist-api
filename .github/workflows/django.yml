@@ -48,7 +48,6 @@ jobs:
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_PORT: ${{ secrets.DB_PORT }}
-      CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN}}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
@@ -67,10 +66,10 @@ jobs:
           postgresql version: '16'
       - name: Run migrations
         run:  python manage.py migrate
-      - name: Run Tests
-        run: |
-          coverage run --source='.' ./manage.py test
-          coverage report
-      - name: Report Coverage
-        run: |
-          codeclimate-test-reporter
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v5.0.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN}}
+        with:
+          coverageCommand: coverage run --source='.' ./manage.py test
+          debug: true
