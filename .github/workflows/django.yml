@@ -76,5 +76,6 @@ jobs:
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
-          ./cc-test-reporter format-coverage -t lcov ./coverage/lcov.info
-          ./cc-test-reporter upload-coverage
+          ./cc-test-reporter before-build
+          ./cc-test-reporter format-coverage -t lcov -o codeclimate.json -i ./coverage/lcov.info
+          ./cc-test-reporter upload-coverage -i codeclimate.json
