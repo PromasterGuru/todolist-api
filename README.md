@@ -33,4 +33,4 @@ pip install -r requirements.txt
 
 ## Badges
 
-[![Test Coverage](https://api.codeclimate.com/v1/badges/b2d1279d85184f3debab/test_coverage)](https://codeclimate.com/github/PromasterGuru/todolist-api/test_coverage) [![Maintainability](https://api.codeclimate.com/v1/badges/b2d1279d85184f3debab/maintainability)](https://codeclimate.com/github/PromasterGuru/todolist-api/maintainability) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Test Coverage](https://github.com/github/docs/actions/workflows/django.yml/badge.svg?event=push)(https://api.codeclimate.com/v1/badges/b2d1279d85184f3debab/test_coverage)](https://codeclimate.com/github/PromasterGuru/todolist-api/test_coverage) [![Maintainability](https://api.codeclimate.com/v1/badges/b2d1279d85184f3debab/maintainability)](https://codeclimate.com/github/PromasterGuru/todolist-api/maintainability) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
