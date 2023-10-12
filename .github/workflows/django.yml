@@ -67,11 +67,11 @@ jobs:
       - name: Run migrations
         run: |
          python manage.py migrate
-         coverage run --source='.' ./manage.py test
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
         with:
-          coverageCommand: coverage html
+          coverageCommand: coverage run --source='.' ./manage.py test
+          command: after-build --coverage-input-type coverage.py
           debug: true
