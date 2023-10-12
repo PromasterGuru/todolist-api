@@ -74,5 +74,5 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
         with:
-          coverageCommand: codeclimate-test-reporter < 'coverage/lcov.info'
+          coverageCommand: codeclimate-test-reporter
           debug: true
