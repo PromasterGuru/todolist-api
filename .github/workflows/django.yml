@@ -68,7 +68,6 @@ jobs:
         run: |
          python manage.py migrate
       - name: Test & publish code coverage
-      - name: Upload CodeClimate test coverage
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
