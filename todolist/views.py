@@ -57,13 +57,14 @@ class ProjectDetailsApiView(RetrieveUpdateDestroyAPIView):
                 serializer = ProjectDetailsSerializer(data=request.data, many=False)
                 serializer.is_valid(raise_exception=False)
                 if len(serializer.errors) > 0:
-                    return self.validator.server_validation_exception(serializer.errors, 'PROJECT_UPDATE_FAILURE')
+                    return self.validator.server_validation_exception(serializer.errors)
                 updated_values = {'name':request.data['name'], 'description':request.data['description']}
                 project, created = Project.objects.update_or_create(id=kwargs['project_id'], defaults=updated_values)
                 status_code = HTTP_201_CREATED if created else HTTP_200_OK
                 serializer = ProjectDetailsSerializer(project)
                 return Response(data={'data': {'message': 'Project record updated successfully', 'details': serializer.data}},status=status_code)
             except BaseException as e:
+                breakpoint()
                 return self.validator.server_exception(title='Failed to update project', errors=e.args[0], code='PROJECT_RECORD_NOT_UPDATED')
 
     def delete(self, request, *args, **kwargs):
